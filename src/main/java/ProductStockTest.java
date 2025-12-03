@@ -1,82 +1,87 @@
 package main.java;
 
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import static org.junit.jupiter.api.Assertions.*;
+
+
 
 class ProductStockTest {
 
-    @org.junit.jupiter.api.BeforeEach
+    @BeforeEach
     void setUp() {
     }
 
-    @org.junit.jupiter.api.AfterEach
+    @AfterEach
     void tearDown() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void getProductId() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void getLocation() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void getOnHand() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void getReserved() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void getAvailable() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void getReorderThreshold() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void getMaxCapacity() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void changeLocation() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void addStock() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void removeDamaged() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void reserve() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void releaseReservation() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void shipReserved() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void isReorderNeeded() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void updateReorderThreshold() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void updateMaxCapacity() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void testToString() {
     }
 }
