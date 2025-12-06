@@ -160,6 +160,14 @@ class ProductStockTest {
         stock.changeLocation("new-loc");
         assertEquals("new-loc", stock.getLocation());
     }
+    @Test
+    @DisplayName("changeLocation with empty string throws exception")
+    @Tag("regression")
+    void testChangeLocationEmpty() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            stock.changeLocation("");
+        });
+    }
 
 
     @Test
