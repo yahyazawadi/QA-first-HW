@@ -90,6 +90,7 @@ class ProductStockTest {
             new ProductStock("product-1", "location", -5, 10, 100);
         });
     }
+
     @Test
     @DisplayName("Constructor negative reorderThreshold throws exception")
     @Tag("regression")
@@ -177,6 +178,7 @@ class ProductStockTest {
         stock.changeLocation("new-loc");
         assertEquals("new-loc", stock.getLocation());
     }
+
     @Test
     @DisplayName("changeLocation with empty string throws exception")
     @Tag("regression")
@@ -195,21 +197,22 @@ class ProductStockTest {
         stock.addStock(50);
         assertEquals(150, stock.getOnHand());
     }
+
     @Test
     @DisplayName("addStock beyond capacity throws exception")
     @Tag("regression")
     void testAddStockBeyondCapacity() {
-        //  onHand=100, maxCapacity=200, amount=150
+        //  onHand=100, maxCapacity=200, amount=150 , IllegalStateException thrown
         assertThrows(IllegalStateException.class, () -> {
             stock.addStock(150);
         });
     }
 
     @Test
-    @DisplayName("addStock to max capacity")
+    @DisplayName("addStock boundary: exactly to max capacity")
     @Tag("add")
     void testAddStockBoundary() {
-        //  onHand=100, maxCapacity=200, amount=100 , onHand=200
+        //  onHand=100, maxCapacity=200, amount=100 , onHand=200 (exact capacity)
         stock.addStock(100);
         assertEquals(200, stock.getOnHand());
     }
@@ -219,11 +222,13 @@ class ProductStockTest {
     @DisplayName("addStock with invalid amounts throws exception")
     @Tag("regression")
     void testAddStockInvalidAmounts(int amount) {
-        //  amount={0,-1,-10}
+        //  amount={0,-1,-10} , IllegalArgumentException thrown
         assertThrows(IllegalArgumentException.class, () -> {
             stock.addStock(amount);
         });
     }
+
+
     @Test
     @DisplayName("removeDamaged reduces onHand")
     @Tag("sanity")
@@ -232,11 +237,12 @@ class ProductStockTest {
         stock.removeDamaged(25);
         assertEquals(75, stock.getOnHand());
     }
+
     @Test
     @DisplayName("removeDamaged more than onHand throws exception")
     @Tag("regression")
     void testRemoveDamagedExceedsOnHand() {
-        //  onHand=100, amount=150
+        //  onHand=100, amount=150 , IllegalStateException thrown
         assertThrows(IllegalStateException.class, () -> {
             stock.removeDamaged(150);
         });
@@ -245,7 +251,7 @@ class ProductStockTest {
     @Test
     @DisplayName("removeDamaged adjusts reserved if needed")
     void testRemoveDamagedAdjustsReserved() {
-        //  onHand=100, reserved=60, amount=50 , onHand=50, reserved=50
+        //  onHand=100, reserved=60, amount=50 , onHand=50, reserved=50 (adjusted)
         stock.reserve(60);
         stock.removeDamaged(50);
         assertEquals(50, stock.getOnHand());
@@ -253,10 +259,30 @@ class ProductStockTest {
     }
 
     @Test
+    @DisplayName("removeDamaged with negative amount throws exception")
+    void testRemoveDamagedNegative() {
+        //  onHand=100, amount=-10 , IllegalArgumentException thrown
+        assertThrows(IllegalArgumentException.class, () -> {
+            stock.removeDamaged(-10);
+        });
+    }
+
+    // RESERVATION
+    @Test
+    @DisplayName("reserve stock")
+    @Tag("sanity")
+    void reserve() {
+        // available=100, amount=30 , reserved=30, available=70
+        stock.reserve(30);
+        assertEquals(30, stock.getReserved());
+        assertEquals(70, stock.getAvailable());
+    }
+
+    @Test
     @DisplayName("reserve more than available throws exception")
     @Tag("regression")
     void testReserveInsufficient() {
-        // available=100, amount=150
+        // available=100, amount=150 , IllegalStateException thrown
         assertThrows(IllegalStateException.class, () -> {
             stock.reserve(150);
         });
@@ -274,25 +300,6 @@ class ProductStockTest {
 
 
     @Test
-    @DisplayName("removeDamaged with negative amount throws exception")
-    @Tag("regression")
-    void testRemoveDamagedNegative() {
-        //  onHand=100, amount=-10
-        assertThrows(IllegalArgumentException.class, () -> {
-            stock.removeDamaged(-10);
-        });
-    }
-    @Test
-    @DisplayName("reserve stock")
-    @Tag("sanity")
-    void reserve() {
-        // available=100, amount=30 , reserved=30, available=70
-        stock.reserve(30);
-        assertEquals(30, stock.getReserved());
-        assertEquals(70, stock.getAvailable());
-    }
-
-    @Test
     @DisplayName("releaseReservation")
     @Tag("sanity")
     void releaseReservation() {
@@ -301,6 +308,7 @@ class ProductStockTest {
         stock.releaseReservation(20);
         assertEquals(30, stock.getReserved());
     }
+
     @Test
     @DisplayName("releaseReservation more than reserved throws exception")
     @Tag("regression")
@@ -316,12 +324,13 @@ class ProductStockTest {
     @DisplayName("releaseReservation with negative amount throws exception")
     @Tag("regression")
     void testReleaseReservationNegative() {
-        // reserved=30, amount=-10
+        //  reserved=30, amount=-10
         stock.reserve(30);
         assertThrows(IllegalArgumentException.class, () -> {
             stock.releaseReservation(-10);
         });
     }
+
 
     @Test
     @DisplayName("shipReserved reduces both onHand and reserved")
@@ -334,6 +343,28 @@ class ProductStockTest {
         assertEquals(0, stock.getReserved());
     }
 
+    @Test
+    @DisplayName("shipReserved more than reserved throws exception")
+    @Tag("regression")
+    void testShipReservedExceedsReserved() {
+        //  reserved=30, amount=31
+        stock.reserve(30);
+        assertThrows(IllegalStateException.class, () -> {
+            stock.shipReserved(31);
+        });
+    }
+
+    @Test
+    @DisplayName("shipReserved with negative amount throws exception")
+    @Tag("regression")
+    void testShipReservedNegative() {
+        // reserved=30, amount=-5
+        stock.reserve(30);
+        assertThrows(IllegalArgumentException.class, () -> {
+            stock.shipReserved(-5);
+        });
+    }
+
 
     @Test
     @DisplayName("isReorderNeeded when available below threshold")
@@ -343,6 +374,7 @@ class ProductStockTest {
         stock.reserve(85);
         assertTrue(stock.isReorderNeeded());
     }
+
     @Test
     @DisplayName("isReorderNeeded when available above threshold")
     @Tag("sanity")
@@ -359,6 +391,7 @@ class ProductStockTest {
         assertFalse(stock.isReorderNeeded());
     }
 
+
     @Test
     @DisplayName("updateReorderThreshold")
     @Tag("sanity")
@@ -367,6 +400,7 @@ class ProductStockTest {
         stock.updateReorderThreshold(50);
         assertEquals(50, stock.getReorderThreshold());
     }
+
     @Test
     @DisplayName("updateReorderThreshold with negative value throws exception")
     @Tag("regression")
@@ -386,6 +420,7 @@ class ProductStockTest {
             stock.updateReorderThreshold(201);
         });
     }
+
     @Test
     @DisplayName("updateMaxCapacity")
     @Tag("sanity")
@@ -393,6 +428,35 @@ class ProductStockTest {
         //  capacity=200, newCapacity=300 , capacity=300
         stock.updateMaxCapacity(300);
         assertEquals(300, stock.getMaxCapacity());
+    }
+
+    @Test
+    @DisplayName("updateMaxCapacity less than onHand throws exception")
+    @Tag("regression")
+    void testUpdateMaxCapacityTooSmall() {
+        //  onHand=100, newCapacity=50
+        assertThrows(IllegalStateException.class, () -> {
+            stock.updateMaxCapacity(50);
+        });
+    }
+
+    @Test
+    @DisplayName("updateMaxCapacity adjusts threshold if needed")
+    void testUpdateMaxCapacityAdjustsThreshold() {
+        //  threshold=150, capacity=200, newCapacity=100 , capacity=100, threshold=100
+        stock.updateReorderThreshold(150);
+        stock.updateMaxCapacity(100);
+        assertEquals(100, stock.getReorderThreshold());
+    }
+
+    @Test
+    @DisplayName("updateMaxCapacity with zero throws exception")
+    @Tag("regression")
+    void testUpdateMaxCapacityZero() {
+        // capacity=200, newCapacity=0
+        assertThrows(IllegalArgumentException.class, () -> {
+            stock.updateMaxCapacity(0);
+        });
     }
 
 
@@ -404,5 +468,26 @@ class ProductStockTest {
         assertNotNull(result);
         assertFalse(result.isEmpty());
         assertTrue(result.contains("product-1"));
+    }
+
+
+    @Test
+    @Timeout(value = 100, unit = TimeUnit.MILLISECONDS)
+    @DisplayName("Performance test")
+    void testPerformance() {
+        stock.addStock(50);
+        stock.reserve(30);
+        stock.releaseReservation(10);
+        stock.shipReserved(20);
+        stock.removeDamaged(10);
+    }
+
+
+    @Test
+    @Disabled("Future feature: operations not implemented yet")
+    @DisplayName("not implemented yet")
+    void testDisabledOperations() {
+        // test disabled
+        fail("operations not implemented yet");
     }
 }
