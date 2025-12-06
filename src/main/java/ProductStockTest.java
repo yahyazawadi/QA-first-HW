@@ -236,6 +236,27 @@ class ProductStockTest {
     }
 
     @Test
+    @DisplayName("reserve more than available throws exception")
+    @Tag("regression")
+    void testReserveInsufficient() {
+        // available=100, amount=150
+        assertThrows(IllegalStateException.class, () -> {
+            stock.reserve(150);
+        });
+    }
+
+    @Test
+    @DisplayName("reserve with negative amount throws exception")
+    @Tag("regression")
+    void testReserveNegative() {
+        //  available=100, amount=-5
+        assertThrows(IllegalArgumentException.class, () -> {
+            stock.reserve(-5);
+        });
+    }
+
+
+    @Test
     @DisplayName("removeDamaged with negative amount throws exception")
     @Tag("regression")
     void testRemoveDamagedNegative() {
