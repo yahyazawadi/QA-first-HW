@@ -178,7 +178,35 @@ class ProductStockTest {
         stock.addStock(50);
         assertEquals(150, stock.getOnHand());
     }
+    @Test
+    @DisplayName("addStock beyond capacity throws exception")
+    @Tag("regression")
+    void testAddStockBeyondCapacity() {
+        //  onHand=100, maxCapacity=200, amount=150
+        assertThrows(IllegalStateException.class, () -> {
+            stock.addStock(150);
+        });
+    }
 
+    @Test
+    @DisplayName("addStock to max capacity")
+    @Tag("add")
+    void testAddStockBoundary() {
+        //  onHand=100, maxCapacity=200, amount=100 , onHand=200
+        stock.addStock(100);
+        assertEquals(200, stock.getOnHand());
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {0, -1, -10})
+    @DisplayName("addStock with invalid amounts throws exception")
+    @Tag("regression")
+    void testAddStockInvalidAmounts(int amount) {
+        //  amount={0,-1,-10}
+        assertThrows(IllegalArgumentException.class, () -> {
+            stock.addStock(amount);
+        });
+    }
     @Test
     @DisplayName("removeDamaged reduces onHand")
     @Tag("sanity")
