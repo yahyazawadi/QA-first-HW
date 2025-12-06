@@ -215,7 +215,35 @@ class ProductStockTest {
         stock.removeDamaged(25);
         assertEquals(75, stock.getOnHand());
     }
+    @Test
+    @DisplayName("removeDamaged more than onHand throws exception")
+    @Tag("regression")
+    void testRemoveDamagedExceedsOnHand() {
+        //  onHand=100, amount=150
+        assertThrows(IllegalStateException.class, () -> {
+            stock.removeDamaged(150);
+        });
+    }
 
+    @Test
+    @DisplayName("removeDamaged adjusts reserved if needed")
+    void testRemoveDamagedAdjustsReserved() {
+        //  onHand=100, reserved=60, amount=50 , onHand=50, reserved=50
+        stock.reserve(60);
+        stock.removeDamaged(50);
+        assertEquals(50, stock.getOnHand());
+        assertEquals(50, stock.getReserved());
+    }
+
+    @Test
+    @DisplayName("removeDamaged with negative amount throws exception")
+    @Tag("regression")
+    void testRemoveDamagedNegative() {
+        //  onHand=100, amount=-10
+        assertThrows(IllegalArgumentException.class, () -> {
+            stock.removeDamaged(-10);
+        });
+    }
     @Test
     @DisplayName("reserve stock")
     @Tag("sanity")
