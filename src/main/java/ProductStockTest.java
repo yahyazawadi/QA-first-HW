@@ -46,6 +46,51 @@ class ProductStockTest {
         assertEquals("product-1", newStock.getProductId());
     }
 
+    @Test
+    @DisplayName("Constructor null productId throws exception")
+    @Tag("regression")
+    void testConstructorNullProductId() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new ProductStock(null, "location", 50, 10, 100);
+        });
+    }
+
+    @Test
+    @DisplayName("Constructor blank productId throws exception")
+    @Tag("regression")
+    void testConstructorBlankProductId() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new ProductStock("   ", "location", 50, 10, 100);
+        });
+    }
+
+    @Test
+    @DisplayName("Constructor empty location throws exception")
+    @Tag("regression")
+    void testConstructorEmptyLocation() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new ProductStock("product-1", "", 50, 10, 100);
+        });
+    }
+
+    @Test
+    @DisplayName("Constructor initialOnHand > maxCapacity throws exception")
+    @Tag("regression")
+    void testConstructorOnHandExceedsCapacity() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new ProductStock("product-1", "location", 150, 10, 100);
+        });
+    }
+
+    @Test
+    @DisplayName("Constructor negative initialOnHand throws exception")
+    @Tag("regression")
+    void testConstructorNegativeInitialOnHand() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new ProductStock("product-1", "location", -5, 10, 100);
+        });
+    }
+
 
     @Test
     @DisplayName("All getters return correct values")
