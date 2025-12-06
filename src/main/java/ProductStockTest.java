@@ -90,6 +90,23 @@ class ProductStockTest {
             new ProductStock("product-1", "location", -5, 10, 100);
         });
     }
+    @Test
+    @DisplayName("Constructor negative reorderThreshold throws exception")
+    @Tag("regression")
+    void testConstructorNegativeReorderThreshold() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new ProductStock("product-1", "location", 50, -10, 100);
+        });
+    }
+
+    @Test
+    @DisplayName("Constructor zero maxCapacity throws exception")
+    @Tag("regression")
+    void testConstructorZeroMaxCapacity() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new ProductStock("product-1", "location", 50, 10, 0);
+        });
+    }
 
 
     @Test
@@ -284,6 +301,27 @@ class ProductStockTest {
         stock.releaseReservation(20);
         assertEquals(30, stock.getReserved());
     }
+    @Test
+    @DisplayName("releaseReservation more than reserved throws exception")
+    @Tag("regression")
+    void testReleaseReservationExceedsReserved() {
+        // reserved=30, amount=31
+        stock.reserve(30);
+        assertThrows(IllegalStateException.class, () -> {
+            stock.releaseReservation(31);
+        });
+    }
+
+    @Test
+    @DisplayName("releaseReservation with negative amount throws exception")
+    @Tag("regression")
+    void testReleaseReservationNegative() {
+        // reserved=30, amount=-10
+        stock.reserve(30);
+        assertThrows(IllegalArgumentException.class, () -> {
+            stock.releaseReservation(-10);
+        });
+    }
 
     @Test
     @DisplayName("shipReserved reduces both onHand and reserved")
@@ -305,7 +343,21 @@ class ProductStockTest {
         stock.reserve(85);
         assertTrue(stock.isReorderNeeded());
     }
+    @Test
+    @DisplayName("isReorderNeeded when available above threshold")
+    @Tag("sanity")
+    void testIsReorderNeededFalse() {
+        // available=100, threshold=20 , false: 100>20
+        assertFalse(stock.isReorderNeeded());
+    }
 
+    @Test
+    @DisplayName("isReorderNeeded boundary - available equals threshold")
+    void testIsReorderNeededBoundary() {
+        //  available=100, threshold=20, reserve=80 ,  false: 20=20
+        stock.reserve(80);
+        assertFalse(stock.isReorderNeeded());
+    }
 
     @Test
     @DisplayName("updateReorderThreshold")
@@ -315,7 +367,25 @@ class ProductStockTest {
         stock.updateReorderThreshold(50);
         assertEquals(50, stock.getReorderThreshold());
     }
+    @Test
+    @DisplayName("updateReorderThreshold with negative value throws exception")
+    @Tag("regression")
+    void testUpdateReorderThresholdNegative() {
+        //  capacity=200, newThreshold=-5
+        assertThrows(IllegalArgumentException.class, () -> {
+            stock.updateReorderThreshold(-5);
+        });
+    }
 
+    @Test
+    @DisplayName("updateReorderThreshold above capacity throws exception")
+    @Tag("regression")
+    void testUpdateReorderThresholdAboveCapacity() {
+        //  capacity=200, newThreshold=201
+        assertThrows(IllegalArgumentException.class, () -> {
+            stock.updateReorderThreshold(201);
+        });
+    }
     @Test
     @DisplayName("updateMaxCapacity")
     @Tag("sanity")
